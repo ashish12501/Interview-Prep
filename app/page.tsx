@@ -11,8 +11,15 @@ import { chapters } from "@/lib/questions";
 export default function Page() {
   const [filter, setFilter] = useState<FilterType>("all");
   const [activeChapterId, setActiveChapterId] = useState(chapters[0]?.id || "");
-  const { isLoaded, setAnswer, getAnswer, resetAll, getMetrics } =
-    useProgress();
+  const {
+    isLoaded,
+    setAnswer,
+    getAnswer,
+    isImportant,
+    toggleImportant,
+    resetChapter,
+    getMetrics,
+  } = useProgress();
 
   const activeChapter = chapters.find((ch) => ch.id === activeChapterId);
   const metrics = getMetrics(activeChapterId);
@@ -35,10 +42,10 @@ export default function Page() {
   const handleReset = () => {
     if (
       window.confirm(
-        "Are you sure you want to reset all answers? This cannot be undone.",
+        `Are you sure you want to reset all answers for ${activeChapter?.name}? This cannot be undone.`,
       )
     ) {
-      resetAll();
+      resetChapter(activeChapterId);
       setFilter("all");
     }
   };
@@ -92,6 +99,8 @@ export default function Page() {
           activeFilter={filter}
           onFilterChange={setFilter}
           onReset={handleReset}
+          currentChapterId={activeChapterId}
+          chapterName={activeChapter?.name || "Chapter"}
         />
 
         {/* Questions List */}
@@ -101,6 +110,8 @@ export default function Page() {
             filter={filter}
             onAnswer={setAnswer}
             getAnswer={getAnswer}
+            isImportant={isImportant}
+            onToggleImportant={toggleImportant}
           />
         )}
       </div>

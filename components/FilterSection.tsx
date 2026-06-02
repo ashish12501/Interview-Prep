@@ -2,18 +2,22 @@
 
 import { Button } from "@/components/ui/button";
 
-export type FilterType = "all" | "know" | "partial" | "dont-know" | "unmarked";
+export type FilterType = "all" | "know" | "partial" | "dont-know" | "unmarked" | "important";
 
 interface FilterSectionProps {
   activeFilter: FilterType;
   onFilterChange: (filter: FilterType) => void;
-  onReset: () => void;
+  onReset: (chapterId: string) => void;
+  currentChapterId: string;
+  chapterName: string;
 }
 
 export function FilterSection({
   activeFilter,
   onFilterChange,
   onReset,
+  currentChapterId,
+  chapterName,
 }: FilterSectionProps) {
   const filters: { label: string; value: FilterType }[] = [
     { label: "All", value: "all" },
@@ -21,6 +25,7 @@ export function FilterSection({
     { label: "Partial", value: "partial" },
     { label: "Don't know", value: "dont-know" },
     { label: "Unmarked", value: "unmarked" },
+    { label: "Important", value: "important" },
   ];
 
   return (
@@ -49,10 +54,10 @@ export function FilterSection({
       <Button
         variant="outline"
         size="sm"
-        onClick={onReset}
+        onClick={() => onReset(currentChapterId)}
         className="border-slate-600 text-slate-500 hover:border-slate-500"
       >
-        Reset all
+        Reset {chapterName}
       </Button>
     </div>
   );

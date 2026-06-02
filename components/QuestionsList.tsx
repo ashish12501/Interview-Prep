@@ -11,6 +11,8 @@ interface QuestionsListProps {
   filter: FilterType;
   onAnswer: (questionId: string, status: AnswerStatus) => void;
   getAnswer: (questionId: string) => AnswerStatus;
+  isImportant: (questionId: string) => boolean;
+  onToggleImportant: (questionId: string) => void;
 }
 
 export function QuestionsList({
@@ -18,6 +20,8 @@ export function QuestionsList({
   filter,
   onAnswer,
   getAnswer,
+  isImportant,
+  onToggleImportant,
 }: QuestionsListProps) {
   const [expandedAnswers, setExpandedAnswers] = useState<
     Record<string, boolean>
@@ -38,6 +42,7 @@ export function QuestionsList({
     if (filter === "partial") return answer === "partial";
     if (filter === "dont-know") return answer === "dont-know";
     if (filter === "unmarked") return answer === null;
+    if (filter === "important") return isImportant(q.id);
     return true;
   });
 
@@ -148,6 +153,21 @@ export function QuestionsList({
                           }
                         >
                           Don&apos;t know
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          variant={
+                            isImportant(question.id) ? "default" : "outline"
+                          }
+                          onClick={() => onToggleImportant(question.id)}
+                          className={
+                            isImportant(question.id)
+                              ? "bg-purple-600 hover:bg-purple-700 text-white"
+                              : "border-slate-600 text-slate-400 hover:border-slate-500"
+                          }
+                        >
+                          ★
                         </Button>
 
                         <Button

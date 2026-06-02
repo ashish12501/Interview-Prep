@@ -9,6 +9,10 @@ interface ProgressData {
   [questionId: string]: AnswerStatus;
 }
 
+interface ImportantData {
+  [questionId: string]: boolean;
+}
+
 interface ProgressMetrics {
   total: number;
   knowCount: number;
@@ -18,19 +22,29 @@ interface ProgressMetrics {
 }
 
 const STORAGE_KEY = "interview-practice-progress";
+const IMPORTANT_STORAGE_KEY = "interview-practice-important";
 
 export function useProgress() {
   const [progress, setProgress] = useState<ProgressData>({});
+  const [important, setImportant] = useState<ImportantData>({});
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
+    const storedImportant = localStorage.getItem(IMPORTANT_STORAGE_KEY);
     if (stored) {
       try {
         setProgress(JSON.parse(stored));
       } catch (e) {
         console.error("Failed to parse progress from localStorage", e);
+      }
+    }
+    if (storedImportant) {
+      try {
+        setImportant(JSON.parse(storedImportant));
+      } catch (e) {
+        console.error("Failed to parse important from localStorage", e);
       }
     }
     setIsLoaded(true);
@@ -42,6 +56,13 @@ export function useProgress() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
     }
   }, [progress, isLoaded]);
+
+  // Persist important to localStorage whenever it changes
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem(IMPORTANT_STORAGE_KEY, JSON.stringify(important));
+    }
+  }, [important, isLoaded]);
 
   const setAnswer = useCallback((questionId: string, status: AnswerStatus) => {
     setProgress((prev) => ({
@@ -57,8 +78,36 @@ export function useProgress() {
     [progress],
   );
 
+  const isImportant = useCallback(
+    (questionId: string): boolean => {
+      return important[questionId] || false;
+    },
+    [important],
+  );
+
+  const toggleImportant = useCallback((questionId: string) => {
+    setImportant((prev) => ({
+      ...prev,
+      [questionId]: !prev[questionId],
+    }));
+  }, []);
+
   const resetAll = useCallback(() => {
     setProgress({});
+  }, []);
+
+  const resetChapter = useCallback((chapterId: string) => {
+    const chapter = chapters.find((ch) => ch.id === chapterId);
+    if (!chapter) return;
+
+    const chapterQuestionIds = new Set(chapter.questions.map((q) => q.id));
+    setProgress((prev) => {
+      const updated = { ...prev };
+      chapterQuestionIds.forEach((id) => {
+        delete updated[id];
+      });
+      return updated;
+    });
   }, []);
 
   const getMetrics = useCallback(
@@ -108,10 +157,14 @@ export function useProgress() {
 
   return {
     progress,
+    important,
     isLoaded,
     setAnswer,
     getAnswer,
+    isImportant,
+    toggleImportant,
     resetAll,
+    resetChapter,
     getMetrics,
   };
 }

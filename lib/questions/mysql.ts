@@ -478,7 +478,7 @@ const mysqlQuestions: Question[] = [
     id: "mysql-58",
     question: "What is GROUP BY in MySQL? Write an example.",
     answer:
-      "GROUP BY groups rows with the same values in specified columns into summary rows. It is used with aggregate functions. Example: SELECT department, COUNT(*) AS employee_count, AVG(salary) AS avg_salary FROM employees GROUP BY department. This returns one row per department showing how many employees are in each and their average salary. Every column in SELECT must either be in GROUP BY or wrapped in an aggregate function.",
+      "GROUP BY is used to group rows with the same values in one or more columns and apply aggregate functions such as COUNT, SUM, AVG, MIN, or MAX to each group. For example, GROUP BY department can be used to calculate the number of employees or average salary for each department. It is commonly used in reporting and analytics queries",
     category: "Queries & Functions",
     tags: ["mysql", "queries"],
   },
